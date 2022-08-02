@@ -1,9 +1,8 @@
-export function ImageGalleryItem({ cards }) {
-
-    return cards?.map(card => {
-        console.log(card);
-        return <li className="ImageGalleryItem">
-            <img src={card.webformatURL} alt={card.tags} className="ImageGalleryItem-image" />
+export function ImageGalleryItem({ cards, onClick }) {
+    return cards?.map((card, i) => {
+        // console.log(card);
+        return <li className="ImageGalleryItem" key={card.id}>
+            <img src={card.webformatURL} alt={card.tags} className="ImageGalleryItem-image" data-id={i} onClick={onClick} />
         </li>
     }
 

@@ -24,6 +24,7 @@ const searchAPI = {
 
   doFetch: async function () {
     const qs = new URLSearchParams(this.params);
+    this.params.page += 1;
     return await fetch(this.url + qs);
   },
 

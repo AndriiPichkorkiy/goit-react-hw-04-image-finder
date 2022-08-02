@@ -205,3 +205,16 @@ img {
 .Button:focus {
   background-color: #303f9f;
 }
+
+/* close btn */
+.Close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #10101092;
+  color: white;
+
+  width: 3rem;
+  height: 3rem;
+  font-size: 2rem;
+}
