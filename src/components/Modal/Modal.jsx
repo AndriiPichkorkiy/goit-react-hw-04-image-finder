@@ -7,10 +7,13 @@ export class Modal extends Component {
 
     componentDidMount() {
         window.addEventListener('keydown', this.onPressESC);
+        //hide vertical scroll
+        document.body.style.overflow = "hidden";
     }
 
     componentWillUnmount() {
         window.removeEventListener('keydown', this.onPressESC);
+        document.body.style.overflow = null;
     }
 
     onCloseModal = () => {

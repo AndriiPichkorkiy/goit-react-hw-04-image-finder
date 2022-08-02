@@ -11,9 +11,9 @@ import { Slider } from "./Slider";
 
 export class App extends Component {
   state = {
-    lastResponse: null,
     collection: [],
     isLoading: false,
+    showBtn: false,
     modal: {
       show: false,
       src: null,
@@ -35,38 +35,41 @@ export class App extends Component {
   }
 
   getImgs = async (query) => {
+    //on loader
     this.setState({
       isLoading: true,
     })
+
+    //do fetch
     const data = await searchAPI.fetchImg(query);
-    // console.log('data', data)
-    this.setState(prevState => ({
-      lastResponse: data,
-      collection: [...data.hits],
-      isLoading: false,
-    }))
+
+    //check for bad request
+    if (data === null) return
+
+    //check if we reached the end of pictures
+    const isTheEnd = searchAPI.checkForReachedEnd();
+
+    this.setState(prevState => {
+      //check if it is the first time we search or it is a click btn load-more
+      const collection = typeof query === 'string' ? [...data.hits] : [...prevState.collection, ...data.hits];
+
+      return {
+        collection,
+        isLoading: false,
+        showBtn: isTheEnd ? false : true,
+      }
+    })
   }
-
-  getMore = async (query) => {
-    const data = await searchAPI.loadMore();
-    // console.log('data', data)
-    this.setState(prevState => ({
-      lastResponse: data,
-      collection: [...prevState.collection, ...data.hits]
-    }))
-  }
-
-
 
   render() {
-    const { collection, isLoading, modal } = this.state
-    const needRenderBtn = Boolean(this.state.lastResponse?.total)
+    const { collection, isLoading, modal, showBtn } = this.state
+    // const needRenderBtn = Boolean(this.state.lastResponse?.total)
     return (
       <div>
         <Searchbar onSubmit={this.getImgs} />
         {!!collection.length && <ImageGallery cards={collection} onClick={this.openSlider} />
         }
-        {needRenderBtn && <ButtonLoadMore onClick={this.getMore} />}
+        {showBtn && <ButtonLoadMore onClick={this.getImgs} />}
         {isLoading && <Loader />}
         {modal.show &&
           <Modal toggleModal={this.toggleModal}>

@@ -11,16 +11,22 @@ const searchAPI = {
     per_page: 12,
   },
 
+  lastData: null,
+
   fetchImg: async function (query) {
-    this.params.q = query;
+    if (typeof query === 'string') {
+      this.params.q = query;
+      this.page = 0;
+    }
+
     const response = await this.doFetch();
     return this.getParsedData(response);
   },
 
-  loadMore: async function () {
-    const response = await this.doFetch();
-    return this.getParsedData(response);
-  },
+  // loadMore: async function () {
+  //   const response = await this.doFetch();
+  //   return this.getParsedData(response);
+  // },
 
   doFetch: async function () {
     const qs = new URLSearchParams(this.params);
@@ -38,7 +44,13 @@ const searchAPI = {
     //check if data present
     if (!data.total) return null;
 
+    this.lastData = data;
     return data;
+  },
+
+  checkForReachedEnd() {
+    if (this.params.per_page * (this.params.page - 1) > this.lastData.total)
+      return true;
   },
 };
 
