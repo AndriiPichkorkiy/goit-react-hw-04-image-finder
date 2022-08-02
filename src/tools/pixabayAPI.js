@@ -16,7 +16,7 @@ const searchAPI = {
   fetchImg: async function (query) {
     if (typeof query === 'string') {
       this.params.q = query;
-      this.page = 0;
+      this.params.page = 1;
     }
 
     const response = await this.doFetch();

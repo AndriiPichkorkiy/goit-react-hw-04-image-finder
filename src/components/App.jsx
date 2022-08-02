@@ -5,8 +5,6 @@ import { Searchbar } from "./Searchbar";
 import { searchAPI } from "tools/pixabayAPI";
 import { ButtonLoadMore } from "./ButtonLoadMore/";
 import { Loader } from "./Loader/Loader";
-import { Modal } from "./Modal";
-import { Slider } from "./Slider";
 
 
 export class App extends Component {
@@ -14,24 +12,6 @@ export class App extends Component {
     collection: [],
     isLoading: false,
     showBtn: false,
-    modal: {
-      show: false,
-      src: null,
-      imgId: null,
-    },
-  }
-
-  toggleModal = () => {
-    this.setState(prevState => {
-      return { modal: { ...prevState.modal, show: !prevState.modal.show } }
-    });
-  }
-
-  openSlider = (e) => {
-    this.toggleModal();
-    const imgId = e.target.dataset.id;
-    const src = this.state.collection[imgId];
-    this.setState(prevState => ({ modal: { ...prevState.modal, imgId, src } }));
   }
 
   getImgs = async (query) => {
@@ -43,11 +23,14 @@ export class App extends Component {
     //do fetch
     const data = await searchAPI.fetchImg(query);
 
+    //stop showing loader
+    this.setState({ isLoading: false, });
+
     //check for bad request
-    if (data === null) return
+    if (data === null) return this.showMessage('bad request')
 
     //check if we reached the end of pictures
-    const isTheEnd = searchAPI.checkForReachedEnd();
+    const isTheEnd = !searchAPI.checkForReachedEnd();
 
     this.setState(prevState => {
       //check if it is the first time we search or it is a click btn load-more
@@ -55,27 +38,23 @@ export class App extends Component {
 
       return {
         collection,
-        isLoading: false,
-        showBtn: isTheEnd ? false : true,
+        showBtn: isTheEnd
       }
     })
   }
 
+  showMessage(message) { alert(message) }
+
   render() {
-    const { collection, isLoading, modal, showBtn } = this.state
-    // const needRenderBtn = Boolean(this.state.lastResponse?.total)
+    const { collection, isLoading, showBtn } = this.state
     return (
       <div>
         <Searchbar onSubmit={this.getImgs} />
-        {!!collection.length && <ImageGallery cards={collection} onClick={this.openSlider} />
+        {!!collection.length && <ImageGallery cards={collection} />
         }
         {showBtn && <ButtonLoadMore onClick={this.getImgs} />}
         {isLoading && <Loader />}
-        {modal.show &&
-          <Modal toggleModal={this.toggleModal}>
-            <Slider src={modal.src} imgId={modal.imgId} collection={collection} />
-          </Modal>
-        }
+
       </div>
 
     );
