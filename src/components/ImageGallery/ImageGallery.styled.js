@@ -18,6 +18,7 @@ const ImageGalleryLi = styled.li`
   /* border-radius: 2px; */
   box-shadow: 0px 2px 4px -1px #1b2c4c55, 0px 4px 5px 0px #1b2c4c55,
     0px 1px 10px 0px #1b2c4c33;
+    min-height: 20rem;
 `;
 
 const ImageGalleryImage = styled.img`

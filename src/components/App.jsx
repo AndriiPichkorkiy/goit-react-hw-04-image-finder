@@ -17,6 +17,35 @@ export class App extends Component {
     showBtn: false,
   }
 
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    if (this.state.isLoading || prevState.collection.length === 0) {
+      return null;
+    }
+    if (prevState.collection.length < this.state.collection.length) {
+      const { offsetHeight } = document.querySelector('header');
+      return window.innerHeight - offsetHeight * 2;
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (snapshot === null) {
+      return false
+    }
+    window.scrollBy({
+      top: snapshot,
+      behavior: 'smooth',
+    });
+
+    return true
+  }
+  hideLoading = () => {
+    this.setState({ isLoading: false, });
+
+
+
+  }
+
   getImgs = async (query) => {
     //on loader
     this.setState({
@@ -27,7 +56,8 @@ export class App extends Component {
     const data = await searchAPI.fetchImg(query);
 
     //stop showing loader
-    this.setState({ isLoading: false, });
+    this.hideLoading();
+    // this.setState({ isLoading: false, });
 
     //check for bad request
     if (data === null) return this.showMessage('bad request')
@@ -69,5 +99,7 @@ export class App extends Component {
   }
 
 }
+
+
 
 

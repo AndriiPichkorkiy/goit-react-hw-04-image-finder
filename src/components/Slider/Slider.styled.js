@@ -3,6 +3,7 @@ const { default: styled } = require('styled-components');
 
 const ButtonChangeImg = styled.button`
   position: absolute;
+  cursor: pointer;
 
   font-size: 3rem;
   color: #d6f0cd;

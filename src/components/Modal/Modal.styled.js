@@ -21,6 +21,8 @@ const ModalDiv = styled.div`
 
 const ButtonClose = styled.button`
   position: absolute;
+  cursor: pointer;
+
   top: 0;
   right: 0;
   background-color: transparent;
