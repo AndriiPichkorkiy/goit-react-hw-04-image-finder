@@ -1,8 +1,10 @@
+import { ImageGalleryLi, ImageGalleryImage } from './ImageGallery.styled'
+
 export function ImageGalleryItem({ cards, onClick }) {
     return cards?.map((card, i) => {
-        return <li className="ImageGalleryItem" key={card.id}>
-            <img src={card.webformatURL} alt={card.tags} className="ImageGalleryItem-image" data-id={i} onClick={onClick} />
-        </li>
+        return <ImageGalleryLi key={card.id}>
+            <ImageGalleryImage src={card.webformatURL} alt={card.tags} data-id={i} onClick={onClick} loading="lazy" />
+        </ImageGalleryLi>
     }
 
     )

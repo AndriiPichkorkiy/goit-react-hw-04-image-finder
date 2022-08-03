@@ -1,5 +1,6 @@
 import { Component } from "react"
 import { createPortal } from 'react-dom'
+import { Overlay, ModalDiv, ButtonClose } from "./Modal.styled";
 
 const modalRoot = document.getElementById('modal')
 
@@ -8,12 +9,12 @@ export class Modal extends Component {
     componentDidMount() {
         window.addEventListener('keydown', this.onPressESC);
         //hide vertical scroll
-        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
     }
 
     componentWillUnmount() {
         window.removeEventListener('keydown', this.onPressESC);
-        document.body.style.overflow = null;
+        document.documentElement.style.overflow = null;
     }
 
     onCloseModal = () => {
@@ -33,12 +34,12 @@ export class Modal extends Component {
     render() {
         const { children } = this.props;
         const { onCloseModal, onClickOverlay } = this;
-        return createPortal(<div class="Overlay" onClick={onClickOverlay}>
-            <button onClick={onCloseModal} className='Close-btn'>X</button>
-            <div class="Modal">
+        return createPortal(<Overlay onClick={onClickOverlay}>
+            <ButtonClose onClick={onCloseModal}>X</ButtonClose>
+            <ModalDiv>
                 {children}
-            </div>
-        </div>, modalRoot)
+            </ModalDiv>
+        </Overlay>, modalRoot)
     }
 
 }

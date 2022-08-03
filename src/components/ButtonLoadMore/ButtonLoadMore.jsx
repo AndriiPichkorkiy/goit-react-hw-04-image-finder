@@ -1,3 +1,5 @@
+import { ButtonLoadMoreStyled } from './ButtonLoadMore.styled'
+
 export function ButtonLoadMore({ onClick }) {
-    return <button className="Button" onClick={onClick}>Load More</button>
+    return <ButtonLoadMoreStyled onClick={onClick}>Load More</ButtonLoadMoreStyled>
 }

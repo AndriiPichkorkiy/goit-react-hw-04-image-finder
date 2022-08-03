@@ -23,11 +23,6 @@ const searchAPI = {
     return this.getParsedData(response);
   },
 
-  // loadMore: async function () {
-  //   const response = await this.doFetch();
-  //   return this.getParsedData(response);
-  // },
-
   doFetch: async function () {
     const qs = new URLSearchParams(this.params);
     this.params.page += 1;
@@ -39,7 +34,6 @@ const searchAPI = {
     if (!response.ok) return null;
 
     const data = await response.json();
-    console.log('data', data);
 
     //check if data present
     if (!data.total) return null;

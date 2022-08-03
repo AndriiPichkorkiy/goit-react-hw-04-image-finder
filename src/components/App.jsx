@@ -6,6 +6,9 @@ import { searchAPI } from "tools/pixabayAPI";
 import { ButtonLoadMore } from "./ButtonLoadMore/";
 import { Loader } from "./Loader/Loader";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export class App extends Component {
   state = {
@@ -43,7 +46,9 @@ export class App extends Component {
     })
   }
 
-  showMessage(message) { alert(message) }
+  showMessage(message) {
+    toast(message);
+  }
 
   render() {
     const { collection, isLoading, showBtn } = this.state
@@ -54,7 +59,10 @@ export class App extends Component {
         }
         {showBtn && <ButtonLoadMore onClick={this.getImgs} />}
         {isLoading && <Loader />}
-
+        <ToastContainer
+          autoClose={2000}
+          pauseOnHover={true}
+        />
       </div>
 
     );

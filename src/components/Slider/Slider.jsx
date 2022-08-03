@@ -1,9 +1,11 @@
 import { Component } from "react"
+import { ButtonChangeImg, ImgSlider, LoaderForImg } from "./Slider.styled";
 
 export class Slider extends Component {
 
     state = {
         currentImgId: 0,
+        showLoader: true,
     }
 
     componentDidMount() {
@@ -12,21 +14,31 @@ export class Slider extends Component {
         })
     }
 
+    // componentDidUpdate() {
+
+    // }
+
     componentWillUnmount() {
         window.removeEventListener('keydown', this.onPressESC);
     }
 
-    getImgSrc = () => {
-
+    disableLoader = () => {
+        this.setState(prevState => ({
+            showLoader: false,
+        }))
     }
 
     onChangeImg = (e) => {
-        const { innerText } = e.target;
+        //show loader
+        this.setState(prevState => ({
+            showLoader: true,
+        }))
+
+        const { dataset: { type } } = e.target;
         const { currentImgId } = this.state;
         const { collection } = this.props;
 
-        let nextImgId = innerText === 'Next' ? currentImgId + 1 : currentImgId - 1
-        console.log('nextImgId', nextImgId)
+        let nextImgId = type === 'Next' ? currentImgId + 1 : currentImgId - 1
         if (nextImgId > collection.length - 1) return this.setState({ currentImgId: 0 });
         if (nextImgId < 0) return this.setState({ currentImgId: collection.length - 1 });
 
@@ -34,13 +46,16 @@ export class Slider extends Component {
     }
 
     render() {
-        const { onChangeImg } = this
-        const src = this.props.collection[this.state.currentImgId].largeImageURL
+        const { state: { showLoader }, onChangeImg, disableLoader } = this
+        const img = this.props.collection[this.state.currentImgId];
+        const src = img.largeImageURL;
+        const tags = img.tags;
         return <>
-            <button onClick={onChangeImg}>Pre</button>
-            <button onClick={onChangeImg}>Next</button>
-            <img src={src} alt="" />
+            {showLoader && <LoaderForImg />}
+            <ButtonChangeImg onClick={onChangeImg} type="Pre" data-type="Pre">&#60;</ButtonChangeImg>
+            <ButtonChangeImg onClick={onChangeImg} type="Next" data-type="Next">&#62;</ButtonChangeImg>
+            <ImgSlider src={src} alt={tags} onLoad={disableLoader} />
+
         </>
     }
-
 }
