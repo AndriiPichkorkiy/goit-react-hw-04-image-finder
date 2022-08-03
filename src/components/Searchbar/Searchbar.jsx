@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { Formik } from 'formik';
-import { Header, FormStyled, ButtonSearch, FieldStyled, ErrorMessageStyled } from "./Searchbar.styled";
+import { Header, FormStyled, ButtonSearch, FieldStyled } from "./Searchbar.styled";
 
 export class Searchbar extends Component {
 
