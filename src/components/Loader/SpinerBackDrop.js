@@ -5,7 +5,7 @@ const SpinerBackDrop = styled.div`
   height: 100vh;
   background-color: #aaaaaaaa;
   z-index: 10000;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
 `;
