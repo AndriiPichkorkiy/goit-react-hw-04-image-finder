@@ -1,5 +1,6 @@
 import { Component } from "react"
 import { ButtonChangeImg, ImgSlider, LoaderForImg } from "./Slider.styled";
+import PropTypes from 'prop-types';
 
 export class Slider extends Component {
 
@@ -7,6 +8,11 @@ export class Slider extends Component {
         currentImgId: 0,
         showLoader: true,
     }
+
+    static propTypes = {
+        collection: PropTypes.array.isRequired,
+        imgId: PropTypes.string.isRequired,
+    };
 
     componentDidMount() {
         this.setState({

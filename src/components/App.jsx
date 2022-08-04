@@ -39,6 +39,7 @@ export class App extends Component {
 
     return true
   }
+  
   hideLoading = () => {
     this.setState({ isLoading: false, });
 

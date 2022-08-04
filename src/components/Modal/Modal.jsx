@@ -1,10 +1,16 @@
 import { Component } from "react"
 import { createPortal } from 'react-dom'
 import { Overlay, ModalDiv, ButtonClose } from "./Modal.styled";
+import PropTypes from 'prop-types';
 
 const modalRoot = document.getElementById('modal')
 
 export class Modal extends Component {
+
+    static propTypes = {
+        toggleModal: PropTypes.func.isRequired,
+        children: PropTypes.element.isRequired,
+    };
 
     componentDidMount() {
         window.addEventListener('keydown', this.onPressESC);
@@ -43,3 +49,5 @@ export class Modal extends Component {
     }
 
 }
+
+

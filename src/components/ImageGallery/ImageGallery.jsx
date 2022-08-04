@@ -3,6 +3,7 @@ import { ImageGalleryItem } from "./ImageGalleryItem";
 import { Modal } from "../Modal";
 import { Slider } from "../Slider";
 import { ImageGalleryUl } from './ImageGallery.styled'
+import PropTypes from 'prop-types';
 
 export class ImageGallery extends Component {
     state = {
@@ -11,6 +12,11 @@ export class ImageGallery extends Component {
             imgId: null,
         },
     }
+
+    static propTypes = {
+        cards: PropTypes.array.isRequired,
+    };
+
     toggleModal = () => {
         this.setState(prevState => {
             return { modal: { ...prevState.modal, show: !prevState.modal.show } }

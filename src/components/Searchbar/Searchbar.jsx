@@ -1,8 +1,13 @@
 import { Component } from "react";
 import { Formik } from 'formik';
 import { Header, FormStyled, ButtonSearch, FieldStyled } from "./Searchbar.styled";
+import PropTypes from 'prop-types';
 
 export class Searchbar extends Component {
+
+    static propTypes = {
+        onSubmit: PropTypes.func.isRequired,
+    };
 
     render() {
         return <Header >
