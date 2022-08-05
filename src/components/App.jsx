@@ -15,7 +15,20 @@ export class App extends Component {
     collection: [],
     isLoading: false,
     showBtn: false,
+
+    page: null,
+    query: null,
+    per_page: 12,
   }
+
+  // async shouldComponentUpdate(nextProps, nextState) {
+  //   //reset if new query
+  //   if (nextState.query !== this.state.query) {
+
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   getSnapshotBeforeUpdate(prevProps, prevState) {
     if (this.state.isLoading || prevState.collection.length === 0) {
@@ -29,53 +42,79 @@ export class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (snapshot === null) {
-      return false
+    //do scroll only if load more btn was clicked
+    if (snapshot !== null) {
+      window.scrollBy({
+        top: snapshot,
+        behavior: 'smooth',
+      });
     }
-    window.scrollBy({
-      top: snapshot,
-      behavior: 'smooth',
-    });
 
     return true
   }
-  
+
   hideLoading = () => {
     this.setState({ isLoading: false, });
+  }
 
+  getImgs = async () => {
+    try {
+      const { query, page, per_page } = this.state;
+      //on loader
+      this.setState({
+        isLoading: true,
+      })
 
+      //do fetch
+      const data = await searchAPI.fetchImg({ query, page, per_page });
+
+      //check for bad request
+      if (data === null) throw Error('bad request')
+
+      //check if we reached the end of pictures
+      const isTheEnd = !this.checkForReachedEnd(data.total);
+
+      //stop showing loader
+      this.hideLoading();
+
+      this.setState(prevState => {
+        //check if it is the first time we search or it is a click btn load-more
+        const collection = [...prevState.collection, ...data.hits];
+
+        return {
+          collection,
+          showBtn: isTheEnd,
+        }
+      })
+    } catch (error) {
+      //stop showing loader
+      this.hideLoading();
+      //show message for user
+      this.showMessage(error.message)
+    }
 
   }
 
-  getImgs = async (query) => {
-    //on loader
-    this.setState({
-      isLoading: true,
+  setQuery = async (query) => {
+    await this.setState({
+      collection: [],
+      showBtn: false,
+      query,
+      page: 1,
     })
-
-    //do fetch
-    const data = await searchAPI.fetchImg(query);
-
-    //stop showing loader
-    this.hideLoading();
-    // this.setState({ isLoading: false, });
-
-    //check for bad request
-    if (data === null) return this.showMessage('bad request')
-
-    //check if we reached the end of pictures
-    const isTheEnd = !searchAPI.checkForReachedEnd();
-
-    this.setState(prevState => {
-      //check if it is the first time we search or it is a click btn load-more
-      const collection = typeof query === 'string' ? [...data.hits] : [...prevState.collection, ...data.hits];
-
-      return {
-        collection,
-        showBtn: isTheEnd
-      }
-    })
+    this.getImgs();
   }
+
+  increasePage = async () => {
+    await this.setState(prevState => ({ page: prevState.page + 1 }))
+    this.getImgs();
+  }
+
+  checkForReachedEnd = (total) => {
+    if (this.state.per_page * (this.state.page) > total)
+      return true;
+  }
+
 
   showMessage(message) {
     toast(message);
@@ -85,11 +124,11 @@ export class App extends Component {
     const { collection, isLoading, showBtn } = this.state
     return (
       <div>
-        <Searchbar onSubmit={this.getImgs} />
+        {isLoading && <Loader />}
+        <Searchbar onSubmit={this.setQuery} />
         {!!collection.length && <ImageGallery cards={collection} />
         }
-        {showBtn && <ButtonLoadMore onClick={this.getImgs} />}
-        {isLoading && <Loader />}
+        {showBtn && <ButtonLoadMore onClick={this.increasePage} />}
         <ToastContainer
           autoClose={2000}
           pauseOnHover={true}

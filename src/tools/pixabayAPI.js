@@ -3,21 +3,20 @@ const searchAPI = {
 
   params: {
     key: '27649790-7921965d78458e948654f4c92',
-    q: null,
+    // q: null,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    page: 1,
-    per_page: 12,
+    // page: 1,
+    // per_page: 12,
   },
 
   lastData: null,
 
-  fetchImg: async function (query) {
-    if (typeof query === 'string') {
-      this.params.q = query;
-      this.params.page = 1;
-    }
+  fetchImg: async function ({ query, page, per_page }) {
+    this.params.q = query;
+    this.params.page = page;
+    this.params.per_page = per_page;
 
     const response = await this.doFetch();
     return this.getParsedData(response);
@@ -25,7 +24,6 @@ const searchAPI = {
 
   doFetch: async function () {
     const qs = new URLSearchParams(this.params);
-    this.params.page += 1;
     return await fetch(this.url + qs);
   },
 
@@ -40,11 +38,6 @@ const searchAPI = {
 
     this.lastData = data;
     return data;
-  },
-
-  checkForReachedEnd() {
-    if (this.params.per_page * (this.params.page - 1) > this.lastData.total)
-      return true;
   },
 };
 
