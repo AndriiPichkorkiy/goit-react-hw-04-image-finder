@@ -6,6 +6,9 @@ import { searchAPI } from "tools/pixabayAPI";
 import { ButtonLoadMore } from "./ButtonLoadMore/";
 import { Loader } from "./Loader/Loader";
 
+import { Modal } from "./Modal";
+import { Slider } from "./Slider";
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -19,16 +22,12 @@ export class App extends Component {
     page: null,
     query: null,
     per_page: 12,
+
+    modal: {
+      show: false,
+      imgId: null,
+    },
   }
-
-  // async shouldComponentUpdate(nextProps, nextState) {
-  //   //reset if new query
-  //   if (nextState.query !== this.state.query) {
-
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   getSnapshotBeforeUpdate(prevProps, prevState) {
     if (this.state.isLoading || prevState.collection.length === 0) {
@@ -53,6 +52,18 @@ export class App extends Component {
     return true
   }
 
+  toggleModal = () => {
+    this.setState(prevState => {
+      return { modal: { ...prevState.modal, show: !prevState.modal.show } }
+    });
+  }
+
+  openSlider = (e) => {
+    this.toggleModal();
+    const imgId = e.target.dataset.id;
+    this.setState(prevState => ({ modal: { ...prevState.modal, imgId } }));
+  }
+
   hideLoading = () => {
     this.setState({ isLoading: false, });
   }
@@ -67,7 +78,6 @@ export class App extends Component {
 
       //do fetch
       const data = await searchAPI.fetchImg({ query, page, per_page });
-
       //check for bad request
       if (data === null) throw Error('bad request')
 
@@ -121,18 +131,26 @@ export class App extends Component {
   }
 
   render() {
-    const { collection, isLoading, showBtn } = this.state
+    const { collection, isLoading, showBtn, modal } = this.state
+    const { toggleModal, openSlider } = this
     return (
       <div>
         {isLoading && <Loader />}
-        <Searchbar onSubmit={this.setQuery} />
-        {!!collection.length && <ImageGallery cards={collection} />
-        }
-        {showBtn && <ButtonLoadMore onClick={this.increasePage} />}
         <ToastContainer
           autoClose={2000}
           pauseOnHover={true}
         />
+
+        <Searchbar onSubmit={this.setQuery} />
+        {!!collection.length && <ImageGallery cards={collection} onClick={openSlider} />
+        }
+        {showBtn && <ButtonLoadMore onClick={this.increasePage} />}
+
+        {modal.show &&
+          <Modal toggleModal={toggleModal}>
+            <Slider imgId={modal.imgId} collection={collection} />
+          </Modal>
+        }
       </div>
 
     );

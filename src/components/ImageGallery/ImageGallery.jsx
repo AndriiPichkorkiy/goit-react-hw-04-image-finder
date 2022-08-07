@@ -1,47 +1,22 @@
 import { Component } from "react";
 import { ImageGalleryItem } from "./ImageGalleryItem";
-import { Modal } from "../Modal";
-import { Slider } from "../Slider";
 import { ImageGalleryUl } from './ImageGallery.styled'
 import PropTypes from 'prop-types';
 
 export class ImageGallery extends Component {
-    state = {
-        modal: {
-            show: false,
-            imgId: null,
-        },
-    }
 
     static propTypes = {
+        onClick: PropTypes.func.isRequired,
         cards: PropTypes.array.isRequired,
     };
 
-    toggleModal = () => {
-        this.setState(prevState => {
-            return { modal: { ...prevState.modal, show: !prevState.modal.show } }
-        });
-    }
-
-    openSlider = (e) => {
-        this.toggleModal();
-        const imgId = e.target.dataset.id;
-        this.setState(prevState => ({ modal: { ...prevState.modal, imgId } }));
-    }
-
     render() {
-        const { state: { modal }, openSlider, toggleModal } = this;
-        const { cards } = this.props;
+        const { cards, onClick } = this.props;
         return <>
 
             <ImageGalleryUl className="ImageGallery">
-                <ImageGalleryItem cards={cards} onClick={openSlider} />
+                <ImageGalleryItem cards={cards} onClick={onClick} />
             </ImageGalleryUl>
-            {modal.show &&
-                <Modal toggleModal={toggleModal}>
-                    <Slider imgId={modal.imgId} collection={cards} />
-                </Modal>
-            }
         </>
     }
 }
