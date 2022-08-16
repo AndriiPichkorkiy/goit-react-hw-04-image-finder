@@ -1,22 +1,24 @@
-import { Component } from "react";
 import { ImageGalleryItem } from "./ImageGalleryItem";
 import { ImageGalleryUl } from './ImageGallery.styled'
 import PropTypes from 'prop-types';
+import { useMemo } from "react";
 
-export class ImageGallery extends Component {
+export function ImageGallery({ cards, onClick }) {
+    const Items = useMemo(() => {
+        return cards.map((card, i) => {
+            return <ImageGalleryItem card={card} onClick={onClick} key={card.id} i={i} />
+        })
+    }, [cards, onClick])
 
-    static propTypes = {
-        onClick: PropTypes.func.isRequired,
-        cards: PropTypes.array.isRequired,
-    };
+    return <>
+        <ImageGalleryUl className="ImageGallery">
+            {Items}
+        </ImageGalleryUl>
+    </>
 
-    render() {
-        const { cards, onClick } = this.props;
-        return <>
-
-            <ImageGalleryUl className="ImageGallery">
-                <ImageGalleryItem cards={cards} onClick={onClick} />
-            </ImageGalleryUl>
-        </>
-    }
 }
+
+ImageGallery.propTypes = {
+    onClick: PropTypes.func.isRequired,
+    cards: PropTypes.array.isRequired,
+};

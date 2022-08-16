@@ -1,5 +1,5 @@
 import { ImageGallery } from "components/ImageGallery";
-import { Component } from "react";
+import { useMemo, useState } from "react";
 import { Searchbar } from "./Searchbar";
 
 import { searchAPI } from "tools/pixabayAPI";
@@ -11,150 +11,131 @@ import { Slider } from "./Slider";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useEffect } from "react";
+import { useCallback } from "react";
 
 
-export class App extends Component {
-  state = {
-    collection: [],
-    isLoading: false,
-    showBtn: false,
+export function App() {
+  const [getCollection, setCollection] = useState([]);
+  const [getIsLoading, setIsLoading] = useState(false);
+  const [getShowBtn, setShowBtn] = useState(false);
 
-    page: null,
-    query: null,
-    per_page: 12,
+  const [getPage, setPage] = useState(null);
+  const [getQuery, setQuery] = useState(null);
+  const [getPerPage] = useState(12);
 
-    modal: {
-      show: false,
-      imgId: null,
-    },
-  }
+  const [getModalIsHow, setModalIsHow] = useState(false);
+  const [getModalImgId, setModalImgId] = useState(null);
 
-  getSnapshotBeforeUpdate(prevProps, prevState) {
-    if (this.state.isLoading || prevState.collection.length === 0) {
-      return null;
-    }
-    if (prevState.collection.length < this.state.collection.length) {
+  useEffect(() => {
+    if (getPage === null) return
+    getImgs();
+  }, [getPage, getQuery])
+
+  useEffect(() => {
+    if (getCollection.length > 12) {
       const { offsetHeight } = document.querySelector('header');
-      return window.innerHeight - offsetHeight * 2;
-    }
-    return null;
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    //do scroll only if load more btn was clicked
-    if (snapshot !== null) {
       window.scrollBy({
-        top: snapshot,
+        top: window.innerHeight - offsetHeight * 2,
         behavior: 'smooth',
       });
     }
+  }, [getCollection])
 
-    return true
+  const toggleModal = () => {
+    setModalIsHow(prevValue => !prevValue)
+
   }
 
-  toggleModal = () => {
-    this.setState(prevState => {
-      return { modal: { ...prevState.modal, show: !prevState.modal.show } }
-    });
-  }
-
-  openSlider = (e) => {
-    this.toggleModal();
+  const openSlider = useCallback((e) => {
+    toggleModal();
     const imgId = e.target.dataset.id;
-    this.setState(prevState => ({ modal: { ...prevState.modal, imgId } }));
-  }
+    setModalImgId(imgId)
+  }, [])
 
-  hideLoading = () => {
-    this.setState({ isLoading: false, });
-  }
+  const hideLoading = useCallback(() => {
+    setIsLoading(false);
+  }, [])
 
-  getImgs = async () => {
+  const getImgs = async () => {
     try {
-      const { query, page, per_page } = this.state;
+      const searchParams = {
+        query: getQuery,
+        page: getPage,
+        per_page: getPerPage
+      }
       //on loader
-      this.setState({
-        isLoading: true,
-      })
+      setIsLoading(true);
 
       //do fetch
-      const data = await searchAPI.fetchImg({ query, page, per_page });
+      const data = await searchAPI.fetchImg(searchParams);
       //check for bad request
       if (data === null) throw Error('bad request')
 
       //check if we reached the end of pictures
-      const isTheEnd = !this.checkForReachedEnd(data.total);
+      const isTheEnd = !checkForReachedEnd(data.total);
 
       //stop showing loader
-      this.hideLoading();
+      hideLoading();
 
-      this.setState(prevState => {
-        //check if it is the first time we search or it is a click btn load-more
-        const collection = [...prevState.collection, ...data.hits];
+      setCollection(prevValue => [...prevValue, ...data.hits]);
+      setShowBtn(isTheEnd);
 
-        return {
-          collection,
-          showBtn: isTheEnd,
-        }
-      })
     } catch (error) {
       //stop showing loader
-      this.hideLoading();
+      hideLoading();
       //show message for user
-      this.showMessage(error.message)
+      showMessage(error.message)
     }
 
   }
 
-  setQuery = async (query) => {
-    await this.setState({
-      collection: [],
-      showBtn: false,
-      query,
-      page: 1,
-    })
-    this.getImgs();
+  const setSearchQuery = (query) => {
+    setShowBtn(false);
+    setQuery(query);
+    setCollection([]);
+    setPage(1);
   }
 
-  increasePage = async () => {
-    await this.setState(prevState => ({ page: prevState.page + 1 }))
-    this.getImgs();
-  }
+  const increasePage = useCallback(() => {
+    setPage(prevValue => prevValue + 1);
+  }, [])
 
-  checkForReachedEnd = (total) => {
-    if (this.state.per_page * (this.state.page) > total)
+  const checkForReachedEnd = useCallback((total) => {
+    if (getPerPage * (getPage) > total)
       return true;
-  }
+  }, [])
 
 
-  showMessage(message) {
+  const showMessage = useCallback(function (message) {
     toast(message);
-  }
+  }, [])
 
-  render() {
-    const { collection, isLoading, showBtn, modal } = this.state
-    const { toggleModal, openSlider } = this
-    return (
-      <div>
-        {isLoading && <Loader />}
-        <ToastContainer
-          autoClose={2000}
-          pauseOnHover={true}
-        />
+  const collection = getCollection;
 
-        <Searchbar onSubmit={this.setQuery} />
-        {!!collection.length && <ImageGallery cards={collection} onClick={openSlider} />
-        }
-        {showBtn && <ButtonLoadMore onClick={this.increasePage} />}
 
-        {modal.show &&
-          <Modal toggleModal={toggleModal}>
-            <Slider imgId={modal.imgId} collection={collection} />
-          </Modal>
-        }
-      </div>
+  return (
+    <div>
+      {getIsLoading && <Loader />}
+      <ToastContainer
+        autoClose={2000}
+        pauseOnHover={true}
+      />
 
-    );
-  }
+      <Searchbar onSubmit={setSearchQuery} />
+      {!!collection.length && <ImageGallery cards={collection} onClick={openSlider} />
+      }
+      {getShowBtn && <ButtonLoadMore onClick={increasePage} />}
+
+      {getModalIsHow &&
+        <Modal toggleModal={toggleModal}>
+          <Slider imgId={getModalImgId} collection={collection} />
+        </Modal>
+      }
+    </div>
+
+  );
+
 
 }
 
